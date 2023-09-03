@@ -4,7 +4,7 @@
 
 # TP1
 
-## Repositorio de (Nombre Apellido) - (Padrón) - (Mail)
+## Repositorio de Thiago Fernando Baez - 110703 - thiago_fer2@hotmail.com
 
 - Para compilar:
 
