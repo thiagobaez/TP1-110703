@@ -57,13 +57,25 @@ enum TIPO switch_tipo(char letra){
 		return resultado;
 }
 
+int contar_separadores(char *string){
+	int i;
+	int separadores=0;
+	for(i=0;i<strlen(string);i++){
+		if(string[i]==';'){
+			separadores++;
+		}
+	}
+	return separadores;
+
+}
 
 informacion_pokemon_t *pokemon_cargar_archivo(const char *path)
 {
 	FILE* archivo;
 	int i;
 	char linea[30];
-	char letra; 
+	char letra;
+	int separadores; 
 	pokemon_t poke;
 
 	informacion_pokemon_t* informacion;
@@ -95,8 +107,53 @@ informacion_pokemon_t *pokemon_cargar_archivo(const char *path)
 	}
 	informacion->cantidad=0;	
 	fscanf(archivo,"%s",linea);
+	if(feof(archivo)){
+		fclose(archivo);
+		free(pokemon);
+		free(informacion);
+		return NULL;
+	}
+
+	
 
 	while(!feof(archivo)){
+	
+		if(contar_separadores(linea)==1){
+			sscanf(linea,"%[^;];%c",poke.nombre,&letra);	
+			poke.tipo=switch_tipo(letra);	
+			separadores=0;
+
+			for(i=0;i<MAX_ATAQUES;i++){
+				fscanf(archivo,"%s",linea);
+				separadores+=contar_separadores(linea);
+				sscanf(linea,"%[^;];%c;%u",poke.info_ataque[i].nombre,&letra,&(poke.info_ataque[i].poder));
+				poke.info_ataque[i].tipo=switch_tipo(letra);
+				
+			}
+			if(separadores!=6){
+				fclose(archivo);
+				if(informacion->cantidad==0){
+					free(pokemon);
+					free(informacion);
+					return NULL;
+				}
+				else{
+					return informacion;
+				}
+			}
+
+		}
+		else{
+			fclose(archivo);
+			if(informacion->cantidad==0){
+				free(pokemon);
+				free(informacion);
+				return NULL;
+			}	
+			else{
+				return informacion;
+			}
+		}
 
 		if(informacion->pokemones>0){
 			pokemon=(pokemon_t*)realloc(pokemon,sizeof(pokemon_t)*(informacion->cantidad+1));
@@ -106,19 +163,8 @@ informacion_pokemon_t *pokemon_cargar_archivo(const char *path)
 				return NULL;
 
 			}
-			
-
 		}
-		
-		sscanf(linea,"%[^;];%c",poke.nombre,&letra);	
-		poke.tipo=switch_tipo(letra);	
 
-		for(i=0;i<3;i++){
-			fscanf(archivo,"%s",linea);
-			sscanf(linea,"%[^;];%c;%u",poke.info_ataque[i].nombre,&letra,&(poke.info_ataque[i].poder));
-			poke.info_ataque[i].tipo=switch_tipo(letra);
-			
-		}
 
 		informacion->pokemones=pokemon;
 		informacion->pokemones[informacion->cantidad]=poke;
@@ -133,12 +179,13 @@ informacion_pokemon_t *pokemon_cargar_archivo(const char *path)
 }
 pokemon_t *pokemon_buscar(informacion_pokemon_t *ip, const char *nombre)
 {
+	
 	return NULL;
 }
 
 int pokemon_cantidad(informacion_pokemon_t *ip)
 {
-	return 0;
+	return ip->cantidad;
 }
 
 const char *pokemon_nombre(pokemon_t *pokemon)
