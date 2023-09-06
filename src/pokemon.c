@@ -5,19 +5,132 @@
 #include "ataque.h"
 #include <string.h>
 
+#define MAX_ATAQUES 3
+#define MAX_NOMBRE 20
+/*
+
+enum TIPO { NORMAL, FUEGO, AGUA, PLANTA, ELECTRICO, ROCA };
+
+struct ataque {
+	char nombre[20];
+	enum TIPO tipo;
+	unsigned int poder;
+};
+*/
 struct pokemon {
-	int pone_lo_que_haga_falta;
+	char nombre[MAX_NOMBRE];
+	enum TIPO tipo;
+	struct ataque info_ataque[MAX_ATAQUES];
 };
 
 struct info_pokemon {
-	int aca_tambien;
+	pokemon_t* pokemones;
+	int cantidad;
 };
+
+enum TIPO switch_tipo(char letra){
+
+	enum TIPO resultado;
+
+	switch (letra)
+				{
+				case 'N':
+					resultado=NORMAL;
+					break;
+				case 'F':
+					resultado=FUEGO;
+					break;
+				case 'A':
+					resultado=AGUA;
+					break;
+				case 'P':
+					resultado=PLANTA;
+					break;
+				case 'E':
+					resultado=ELECTRICO;
+					break;
+				case 'R':
+					resultado=ROCA;
+					break;			
+				}
+
+		return resultado;
+}
+
 
 informacion_pokemon_t *pokemon_cargar_archivo(const char *path)
 {
-	return NULL;
-}
+	FILE* archivo;
+	int i;
+	char linea[30];
+	char letra; 
+	pokemon_t poke;
 
+	informacion_pokemon_t* informacion;
+	pokemon_t* pokemon,*nuevo_pokemon;
+	
+
+	archivo=fopen(path,"r");
+
+	if(archivo == NULL){
+		printf("No se pudo abrir el archivo.\n");
+		return NULL;
+
+	}
+	pokemon=(pokemon_t*)malloc(sizeof(pokemon_t));
+
+	if(pokemon == NULL){
+		printf("No se pudo asignar la memoria.\n");
+		fclose(archivo); 
+		return NULL;
+	}	
+
+	informacion=(informacion_pokemon_t*)malloc(sizeof(informacion_pokemon_t));
+	
+
+	if(informacion == NULL){
+		printf("No se pudo asignar la memoria.\n"); 
+		fclose(archivo);
+		return NULL;
+	}
+	informacion->cantidad=0;	
+	fscanf(archivo,"%s",linea);
+
+	while(!feof(archivo)){
+
+		if(informacion->pokemones>0){
+			pokemon=(pokemon_t*)realloc(pokemon,sizeof(pokemon_t)*(informacion->cantidad+1));
+			if(pokemon==NULL){
+				printf("No se pudo reasignar memoria para el vector.\n");
+				fclose(archivo);
+				return NULL;
+
+			}
+			
+
+		}
+		
+		sscanf(linea,"%[^;];%c",poke.nombre,&letra);	
+		poke.tipo=switch_tipo(letra);	
+
+		for(i=0;i<3;i++){
+			fscanf(archivo,"%s",linea);
+			sscanf(linea,"%[^;];%c;%u",poke.info_ataque[i].nombre,&letra,&(poke.info_ataque[i].poder));
+			poke.info_ataque[i].tipo=switch_tipo(letra);
+			
+		}
+
+		informacion->pokemones=pokemon;
+		informacion->pokemones[informacion->cantidad]=poke;
+		informacion->cantidad++;
+
+		fscanf(archivo,"%s",linea);
+	}
+	
+	fclose(archivo);
+
+	return informacion;
+}
 pokemon_t *pokemon_buscar(informacion_pokemon_t *ip, const char *nombre)
 {
 	return NULL;
