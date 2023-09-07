@@ -51,7 +51,10 @@ enum TIPO switch_tipo(char letra){
 					break;
 				case 'R':
 					resultado=ROCA;
-					break;			
+					break;
+				default:
+					resultado=NORMAL;
+					break;				
 				}
 
 		return resultado;
@@ -69,6 +72,25 @@ int contar_separadores(char *string){
 
 }
 
+void ordenar_pokemones_alfabeticamente(informacion_pokemon_t* ip){
+
+	int i,j;
+	pokemon_t tmp;
+
+	for(i=0;i<ip->cantidad-1;i++){
+		for(j=i+1;j<ip->cantidad;j++){
+			if(strcmp(ip->pokemones[i].nombre,ip->pokemones[j].nombre)>0){
+				tmp=ip->pokemones[i];
+				ip->pokemones[i]=ip->pokemones[j];
+				ip->pokemones[j]=tmp;
+
+			}
+		}
+	}	
+
+
+}
+
 informacion_pokemon_t *pokemon_cargar_archivo(const char *path)
 {
 	FILE* archivo;
@@ -79,7 +101,7 @@ informacion_pokemon_t *pokemon_cargar_archivo(const char *path)
 	pokemon_t poke;
 
 	informacion_pokemon_t* informacion;
-	pokemon_t* pokemon,*nuevo_pokemon;
+	pokemon_t* pokemon;
 	
 
 	archivo=fopen(path,"r");
@@ -155,8 +177,8 @@ informacion_pokemon_t *pokemon_cargar_archivo(const char *path)
 			}
 		}
 
-		if(informacion->pokemones>0){
-			pokemon=(pokemon_t*)realloc(pokemon,sizeof(pokemon_t)*(informacion->cantidad+1));
+		if(informacion->cantidad>0){
+			pokemon=(pokemon_t*)realloc(pokemon,sizeof(pokemon_t)*(long unsigned int)(informacion->cantidad+1));
 			if(pokemon==NULL){
 				printf("No se pudo reasignar memoria para el vector.\n");
 				fclose(archivo);
@@ -192,7 +214,8 @@ pokemon_t *pokemon_buscar(informacion_pokemon_t *ip, const char *nombre)
 }
 
 int pokemon_cantidad(informacion_pokemon_t *ip)
-{	if(ip==NULL)
+{	
+	if(ip==NULL)
 		return 0;
 	else
 		return ip->cantidad;
@@ -243,13 +266,36 @@ const struct ataque *pokemon_buscar_ataque(pokemon_t *pokemon, const char *nombr
 int con_cada_pokemon(informacion_pokemon_t *ip, void (*f)(pokemon_t *, void *),
 		     void *aux)
 {
-	return 0;
+	int i;
+
+	if(ip == NULL || aux == NULL){
+		return 0;
+	}
+
+	ordenar_pokemones_alfabeticamente(ip);
+
+	for(i=0;i<ip->cantidad;i++){
+		(*f)(&ip->pokemones[i],aux);
+
+	}
+
+	return ip->cantidad;
 }
 
 int con_cada_ataque(pokemon_t *pokemon,
 		    void (*f)(const struct ataque *, void *), void *aux)
-{
-	return 0;
+{	int i;
+
+	if(pokemon == NULL || aux == NULL){
+		return 0;
+	}
+
+	for(i=0;i<MAX_ATAQUES;i++){
+		(*f)(&pokemon->info_ataque[i],aux);
+
+	}
+
+	return MAX_ATAQUES;
 }
 
 void pokemon_destruir_todo(informacion_pokemon_t *ip)
