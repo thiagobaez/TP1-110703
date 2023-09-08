@@ -94,41 +94,33 @@ void ordenar_pokemones_alfabeticamente(informacion_pokemon_t* ip){
 informacion_pokemon_t *pokemon_cargar_archivo(const char *path)
 {
 	FILE* archivo;
-	int i,r;
+	int i;
 	char linea[30];
 	char letra;
 	int separadores; 
 	pokemon_t poke;
 
 	informacion_pokemon_t* informacion;
-	pokemon_t* pokemon;
+	pokemon_t* pokemon=NULL;
+	pokemon_t* nuevo;
 	
 
 	archivo=fopen(path,"r");
 
-	if(archivo == NULL){
-		printf("No se pudo abrir el archivo.\n");
+	if(archivo == NULL)
 		return NULL;
 
-	}
-	pokemon=(pokemon_t*)malloc(sizeof(pokemon_t));
-
-	if(pokemon == NULL){
-		printf("No se pudo asignar la memoria.\n");
-		fclose(archivo); 
-		return NULL;
-	}	
 
 	informacion=(informacion_pokemon_t*)malloc(sizeof(informacion_pokemon_t));
 	
 
 	if(informacion == NULL){
-		printf("No se pudo asignar la memoria.\n"); 
 		fclose(archivo);
 		return NULL;
 	}
+
 	informacion->cantidad=0;	
-	r=fscanf(archivo,"%s",linea);
+	(void)!fscanf(archivo,"%s",linea);
 	if(feof(archivo)){
 		fclose(archivo);
 		free(pokemon);
@@ -158,7 +150,7 @@ informacion_pokemon_t *pokemon_cargar_archivo(const char *path)
 			separadores=0;
 
 			for(i=0;i<MAX_ATAQUES;i++){
-				r=fscanf(archivo,"%s",linea);
+				(void)!fscanf(archivo,"%s",linea);
 				separadores+=contar_separadores(linea);
 				sscanf(linea,"%[^;];%c;%u",poke.info_ataque[i].nombre,&letra,&(poke.info_ataque[i].poder));
 				poke.info_ataque[i].tipo=switch_tipo(letra);
@@ -201,23 +193,23 @@ informacion_pokemon_t *pokemon_cargar_archivo(const char *path)
 			}
 		}
 
-		if(informacion->cantidad>0){
-			pokemon=(pokemon_t*)realloc(pokemon,sizeof(pokemon_t)*(long unsigned int)(informacion->cantidad+1));
-			if(pokemon==NULL){
-				printf("No se pudo reasignar memoria para el vector.\n");
-				fclose(archivo);
-				return NULL;
+		
+		nuevo=(pokemon_t*)realloc(pokemon,sizeof(pokemon_t)*(long unsigned int)(informacion->cantidad+1));
+		if(nuevo==NULL){
 
-			}
+			fclose(archivo);
+			return NULL;
+
 		}
-
+		pokemon=nuevo;
 
 		informacion->pokemones=pokemon;
 		informacion->pokemones[informacion->cantidad]=poke;
 		informacion->cantidad++;
 
-		r=fscanf(archivo,"%s",linea);
-		printf("%i",r);
+		(void)!fscanf(archivo,"%s",linea);
+		
+		
 	}
 	
 	fclose(archivo);
@@ -226,6 +218,11 @@ informacion_pokemon_t *pokemon_cargar_archivo(const char *path)
 }
 pokemon_t *pokemon_buscar(informacion_pokemon_t *ip, const char *nombre)
 {
+	if(ip==NULL || nombre == NULL){
+
+		return NULL;
+	}
+
 	int i=0;
 	pokemon_t* ubicacion=NULL;
 	while(ubicacion==NULL && i<ip->cantidad){
@@ -293,7 +290,7 @@ int con_cada_pokemon(informacion_pokemon_t *ip, void (*f)(pokemon_t *, void *),
 {
 	int i;
 
-	if(ip == NULL || aux == NULL){
+	if(ip == NULL || aux == NULL || f== NULL){
 		return 0;
 	}
 
@@ -311,7 +308,7 @@ int con_cada_ataque(pokemon_t *pokemon,
 		    void (*f)(const struct ataque *, void *), void *aux)
 {	int i;
 
-	if(pokemon == NULL || aux == NULL){
+	if(pokemon == NULL || aux == NULL || f == NULL){
 		return 0;
 	}
 
@@ -325,7 +322,9 @@ int con_cada_ataque(pokemon_t *pokemon,
 
 void pokemon_destruir_todo(informacion_pokemon_t *ip)
 {	
+	if(ip!=NULL){
 	free(ip->pokemones);
 	free(ip);
+	}
 	
 }
