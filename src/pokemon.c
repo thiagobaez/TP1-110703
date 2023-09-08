@@ -53,7 +53,7 @@ enum TIPO switch_tipo(char letra){
 					resultado=ROCA;
 					break;
 				default:
-					resultado=NORMAL;
+					resultado=-1;
 					break;				
 				}
 
@@ -94,7 +94,7 @@ void ordenar_pokemones_alfabeticamente(informacion_pokemon_t* ip){
 informacion_pokemon_t *pokemon_cargar_archivo(const char *path)
 {
 	FILE* archivo;
-	int i;
+	int i,r;
 	char linea[30];
 	char letra;
 	int separadores; 
@@ -128,7 +128,7 @@ informacion_pokemon_t *pokemon_cargar_archivo(const char *path)
 		return NULL;
 	}
 	informacion->cantidad=0;	
-	fscanf(archivo,"%s",linea);
+	r=fscanf(archivo,"%s",linea);
 	if(feof(archivo)){
 		fclose(archivo);
 		free(pokemon);
@@ -142,14 +142,38 @@ informacion_pokemon_t *pokemon_cargar_archivo(const char *path)
 	
 		if(contar_separadores(linea)==1){
 			sscanf(linea,"%[^;];%c",poke.nombre,&letra);	
-			poke.tipo=switch_tipo(letra);	
+			poke.tipo=switch_tipo(letra);
+			if(poke.tipo==-1){
+					fclose(archivo);
+					if(informacion->cantidad==0){
+						free(pokemon);
+						free(informacion);
+						return NULL;
+					}
+					else{
+						return informacion;
+					}
+
+				}	
 			separadores=0;
 
 			for(i=0;i<MAX_ATAQUES;i++){
-				fscanf(archivo,"%s",linea);
+				r=fscanf(archivo,"%s",linea);
 				separadores+=contar_separadores(linea);
 				sscanf(linea,"%[^;];%c;%u",poke.info_ataque[i].nombre,&letra,&(poke.info_ataque[i].poder));
 				poke.info_ataque[i].tipo=switch_tipo(letra);
+				if(poke.info_ataque[i].tipo==-1){
+					fclose(archivo);
+					if(informacion->cantidad==0){
+						free(pokemon);
+						free(informacion);
+						return NULL;
+					}
+					else{
+						return informacion;
+					}
+
+				}
 				
 			}
 			if(separadores!=6){
@@ -192,7 +216,8 @@ informacion_pokemon_t *pokemon_cargar_archivo(const char *path)
 		informacion->pokemones[informacion->cantidad]=poke;
 		informacion->cantidad++;
 
-		fscanf(archivo,"%s",linea);
+		r=fscanf(archivo,"%s",linea);
+		printf("%i",r);
 	}
 	
 	fclose(archivo);
