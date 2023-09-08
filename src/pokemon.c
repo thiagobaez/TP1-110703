@@ -104,6 +104,8 @@ informacion_pokemon_t *pokemon_cargar_archivo(const char *path)
 	pokemon_t* pokemon=NULL;
 	pokemon_t* nuevo;
 	
+	if(path==NULL)
+		return NULL;
 
 	archivo=fopen(path,"r");
 
