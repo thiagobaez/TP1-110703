@@ -25,12 +25,6 @@ make pruebas_chanutron
 ---
 ##  Funcionamiento
 
-Explicación de cómo funcionan las estructuras desarrolladas en el TP y el funcionamiento general del mismo.
-
-Aclarar en esta parte todas las decisiones que se tomaron al realizar el TP, cosas que no se aclaren en el enunciado, fragmentos de código que necesiten explicación extra, etc.
-
-Incluír **EN TODOS LOS TPS** los diagramas relevantes al problema (mayormente diagramas de memoria para explicar las estructuras, pero se pueden utilizar otros diagramas si es necesario).
-
 ### Función pokemon_cargar_archivo()
 
 El programa inicia con la función `pokemon_cargar_archivo` que recibe por referencia un string con el path del archivo a trabajar. Se verifica el nombre del archivo a abrir.  Si este no es nulo (`NULL`), se procede a intentar abrir el archivo de texto. En caso de éxito, comienza el proceso de lectura del mismo, en el que se encuentra la información de ciertos pokemones. El archivo a leer debe estar estructurado de la siguiente manera: 
@@ -65,11 +59,20 @@ Se comprueba que al leer una línea, no se haya llegado al final del archivo, ya
 Una vez leída la primer línea, se entra en un ciclo `while()` el cual iterará mientras no se llegue al final del archivo.
 Se cuenta la cantidad de `';'` que posee cada una de las líneas. Para corroborar que el formato del archivo sea correcto, debe haber (1) `';'` en el primer renglón (donde se ubica el nombre y tipo del pokemon), seguido por tres renglones con (2) `';'` (donde se ubican los datos de los ataques correspondientes a dicho pokemon). Para poder separar cada característica o atributo del pokemon, se utiliza la función `sscanf()` que lee datos desde una cadena de texto, siguiendo un cierto código de formato. En este caso, se lee primero el nombre y el tipo del pokemon, luego los atributos de los 3 ataques correspondientes. Los datos leídos desde el string son cargados a una estructura local llamada `"poke"`, la cual llevará los datos de cada una de las líneas leídas. En el caso de que la lectura falle por algún error en el formato o por la falta de datos, se cierra el archivo y se retornará el puntero a la estructura info_pokemon con los pokemones leídos correctamente hasta el momento (en caso de no poder leer ninguno, se libera el bloque de memoria reservado en el heap y se retorna `NULL`).
 
+<div align="center">
+<img width="50%" src="img/diag2.jpg">
+</div>
+
+
 Si la lectura del pokemon fue exitosa, se procede a llamar a la función `realloc()`. Esta función permite redimensionar el espacio asignado en memoria. Se le pasan dos parámetros, un puntero al bloque de memoria asignado previamente y el nuevo tamaño del bloque de memoria. Devuelve un puntero void al bloque de memoria reasignado. Si no hay suficiente memoria disponible para expandir el bloque al tamaño especificado, el bloque original se deja sin cambios y se devuelve `NULL`. Al igual que en `malloc()`, la función retorna un void pointer, por lo que se tiene que castear al tipo de dato requerido (en este caso, un pokemon_t*).
+
+<div align="center">
+<img width="50%" src="img/diag3.jpg">
+</div>
 
 En la primer llamada que se realiza a la función `realloc()`, se le pasa un puntero `NULL` y el tamaño en bytes de la estructura `struct pokemon`. Si el puntero es `NULL` y el tamaño solicitado es mayor a cero, `realloc()` se comporta de manera equivalente a `malloc()`.
 
-Una vez terminada la lectura y asignación de memoria para el pokemon leído, si el formato y los datos son correctos, se procede a guardar la estructura `poke` en el vector de pokemones. El primer pokemon se ubicará en la posición [`0`] del vector, el segundo en [`1`] y así sucesivamente hasta [`cantidad-1`]. Luego seguirá iterando hasta leer todos los pokemones, finalmente se cierra el archivo con la función `fclose()` y se retorna un puntero a la información leída al módulo invocante.
+Una vez terminada la lectura y asignación de memoria para el pokemon leído, si el formato y los datos son correctos, se procede a guardar la estructura `poke` en el vector de pokemones. El primer pokemon se ubicará en la posición [`0`] del vector, el segundo en [`1`] y así sucesivamente hasta [`cantidad-1`]. Luego seguirá iterando hasta leer todos los pokemones, finalmente, una vez que haya llegado el final del archivo, termina el ciclo `while()`, se cierra el archivo con la función `fclose()` y se retorna un puntero con información leída al módulo invocante.
 
 ### Función pokemon_buscar()
 Para esta función, se recibe como parámetro, un puntero de tipo informacion_pokemon_t*, que contiene la dirección de memoria donde se alojan los datos de los pokemones (en el heap), y también el nombre de un pokemon a buscar (string).
@@ -122,3 +125,6 @@ Para poder entender mejor como funciona el algoritmo, observar el gif insertado 
 </div>
 
 #### Explicar con diagramas la disposición de los diferentes elementos en memoria para las diferentes operaciones implementadas.
+ 
+ Los diagramas de memoria fueron colocados en la explicacion del funcionamiento del TP.
+
