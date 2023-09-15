@@ -276,7 +276,7 @@ int con_cada_pokemon(informacion_pokemon_t *ip, void (*f)(pokemon_t *, void *),
 		(*f)(&ip->pokemones[i], aux);
 	}
 
-	return ip->cantidad;
+	return i;
 }
 
 int con_cada_ataque(pokemon_t *pokemon,
@@ -292,7 +292,7 @@ int con_cada_ataque(pokemon_t *pokemon,
 		(*f)(&pokemon->info_ataque[i], aux);
 	}
 
-	return MAX_ATAQUES;
+	return i;
 }
 
 void pokemon_destruir_todo(informacion_pokemon_t *ip)
