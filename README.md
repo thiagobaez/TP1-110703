@@ -9,18 +9,18 @@
 - Para compilar:
 
 ```bash
-línea de compilación
+make pruebas_chanutron
 ```
 
 - Para ejecutar:
 
 ```bash
-línea de ejecución
+./pruebas_chanutron
 ```
 
 - Para ejecutar con valgrind:
 ```bash
-línea con valgrind
+./valgrind pruebas_chanutron
 ```
 ---
 ##  Funcionamiento
@@ -51,7 +51,7 @@ Para poder guardar la información requerida, se utilizan tres estructuras:
 - **struct pokemon**: Contiene los datos básicos de un pokemon, nombre (string), su tipo (enum) y un vector con 3 estructuras (struct ataque), una para cada ataque que posee el pokemon.
 - **struct ataque**: En esta se aloja la información del ataque, nombre (string), tipo (enum) y poder (unsigned int).
 
-Por la necesidad de crear estructuras que "sobrevivan" al acabar la función, se procede a crear un informacion_pokemon_t*,puntero que contendrá la dirección de memoria que le asignará la función `malloc()`. Esta función, perteneciente a la librería `stdlib.h`, asigna bloques de memoria del tamaño solicitado por parámetro (el tamaño se especifica en bytes). Devuelve un void pointer a la zona de memoria concedida (en caso de no poder asignarse, devuelve `NULL`).
+Por la necesidad de crear estructuras que "sobrevivan" al acabar la función, se procede a crear un informacion_pokemon_t*, puntero que contendrá la dirección de memoria que devuelve `malloc()`. Esta función, perteneciente a la librería `stdlib.h`, asigna bloques de memoria del tamaño solicitado por parámetro (el tamaño se especifica en bytes). Devuelve un void pointer a la zona de memoria concedida (en caso de no poder asignarse, devuelve `NULL`).
 Para poder guardar la dirección de memoria que retorna `malloc()`, se realiza la conversión de tipo de dato (casteo) anteponiendo (informacion_pokemon_t *), de modo que el compilador interprete que la función está retornando un puntero de ese tipo.
 A diferencia de las variables que usualmente creamos, que son almacenadas en un lugar de la memoria llamado "Stack" y son reguladas automáticamente por el sistema operativo (se libera el espacio utilizado al terminar el programa), cuando se usa la función `malloc()`, se están reservando bloques de memoria dentro de un lugar en la memoria RAM llamado "Heap", en el cual las variables que se crean son reguladas por el programador, y se deben liberar dichos bloques una vez que no se necesiten más. Esta acción de liberar la zona de memoria asignada por `malloc()`, se realiza a través de la función `free()`, que más tarde se utilizará al terminar el programa.
 
@@ -103,30 +103,22 @@ Retomando el tema de las funciones `malloc()` y `realloc()`, las cuales dijimos 
 ### Fin del Trabajo Práctico y conclusión
 Habiendo finalizado la escritura del código, se compila con `make pruebas_chanutron` y posteriormente se lo ejecuta con `valgrind ./pruebas_chanutron`. La herramienta valgrind mostrará el sumario del heap y de errores. Se puede observar que corrió todas las pruebas implementadas por la cátedra y no hubo perdidas de memoria al terminar la ejecución. Se hizo uso de la herramienta clang-format para verificar que el estilo de código corresponda al del kernel de Linux.
 
-### Por ejemplo: 
-
-El programa funciona abriendo el archivo pasado como parámetro y leyendolo línea por línea. Por cada línea crea un registro e intenta agregarlo al vector. La función de lectura intenta leer todo el archivo o hasta encontrar el primer error. Devuelve un vector con todos los registros creados.
-
-<div align="center">
-<img width="70%" src="img/d1q.svg">
-</div>
-
-En el archivo `sarasa.c` la función `funcion1` utiliza `realloc` para agrandar la zona de memoria utilizada para conquistar el mundo. El resultado de `realloc` lo guardo en una variable auxiliar para no perder el puntero original en caso de error:
-
-```c
-int *vector = realloc(vector_original, (n+1)*sizeof(int));
-
-if(vector == NULL)
-    return -1;
-vector_original = vector;
-```
-
-
-<div align="center">
-<img width="70%" src="img/diagrama2.svg">
-</div>
-
----
 
 ## Respuestas a las preguntas teóricas
-Incluír acá las respuestas a las preguntas del enunciado (si aplica).
+
+#### Explicar cómo se logra que los pokemon queden ordenados alfabéticamente y cuál es el costo computacional de esta operación.
+
+Para ordenar los pokemones se implemento un algoritmo de ordenamiento llamado "Ordenamiento por Burbujeo". En este caso, el algoritmo de ordenamiento de burbuja se utiliza para comparar los nombres de los Pokemones, y ordenarlo alfabéticamente.
+El algoritmo funciona comparando dos nombres contiguos en el vector, es decir, compara el nombre del pokemon que se encuentra en la posición `[0]` con el nombre del pokemon en `[1]`. Si el nombre `[0]` es mayor alfabéticamente que en `[1]`, se procede a realizar el cambio: 
+- Se guarda el pokemon de `[0]` en una variable auxiliar
+- El pokemon que estaba en `[1]` ahora se mueve a `[0]`
+- Ahora, en `[1]` se guarda el pokemon auxiliar (anteriormente en `[0]`)
+
+Una vez realizado el cambio, se comparan los pokemones siguientes, los posicionados en`[1]` y `[2]`. Asi sucesivamente hasta comparar los últimos dos del vector.
+La complejidad computacional que implica este algoritmo es de O(n²). 
+Para poder entender mejor como funciona el algoritmo, observar el gif insertado abajo.
+<div align="left">
+<img width="20%" src="img/sort.gif">
+</div>
+
+#### Explicar con diagramas la disposición de los diferentes elementos en memoria para las diferentes operaciones implementadas.
