@@ -41,13 +41,13 @@ ataque3;tipo;poder
 ```
 
 Para poder guardar la información requerida, se utilizan tres estructuras:
-- **struct info_pokemon**: Esta estructura contiene una variable entera (int) con la cantidad de pokemones leídos, y un vector dinámico de estructuras struct pokemón.
+- **struct info_pokemon**: Esta estructura contiene una variable entera (int) con la cantidad de pokemones leídos, y un puntero pokemon_t (Este se utilizará para el vector dinamico que más tarde se asignará).
 - **struct pokemon**: Contiene los datos básicos de un pokemon, nombre (string), su tipo (enum) y un vector con 3 estructuras (struct ataque), una para cada ataque que posee el pokemon.
 - **struct ataque**: En esta se aloja la información del ataque, nombre (string), tipo (enum) y poder (unsigned int).
 
 Por la necesidad de crear estructuras que "sobrevivan" al acabar la función, se procede a crear un informacion_pokemon_t*, puntero que contendrá la dirección de memoria que devuelve `malloc()`. Esta función, perteneciente a la librería `stdlib.h`, asigna bloques de memoria del tamaño solicitado por parámetro (el tamaño se especifica en bytes). Devuelve un void pointer a la zona de memoria concedida (en caso de no poder asignarse, devuelve `NULL`).
 Para poder guardar la dirección de memoria que retorna `malloc()`, se realiza la conversión de tipo de dato (casteo) anteponiendo (informacion_pokemon_t *), de modo que el compilador interprete que la función está retornando un puntero de ese tipo.
-A diferencia de las variables que usualmente creamos, que son almacenadas en un lugar de la memoria llamado "Stack" y son reguladas automáticamente por el sistema operativo (se libera el espacio utilizado al terminar el programa), cuando se usa la función `malloc()`, se están reservando bloques de memoria dentro de un lugar en la memoria RAM llamado "Heap", en el cual las variables que se crean son reguladas por el programador, y se deben liberar dichos bloques una vez que no se necesiten más. Esta acción de liberar la zona de memoria asignada por `malloc()`, se realiza a través de la función `free()`, que más tarde se utilizará al terminar el programa.
+A diferencia de las variables que usualmente creamos, que son almacenadas en un lugar de la memoria llamado "Stack" y son reguladas automáticamente por el sistema operativo (se libera el espacio utilizado al terminar el programa), cuando se usa la función `malloc()`, se están reservando bloques de memoria dentro de un lugar en la memoria RAM llamado "Heap", la cual es regulada por el programador, y se deben liberar dichos bloques una vez que no se necesiten más. Esta acción de liberar la zona de memoria asignada por `malloc()`, se realiza a través de la función `free()`, que más tarde se utilizará al terminar el programa.
 
 <div align="center">
 <img width="90%" src="img/diag1.png">
@@ -72,7 +72,7 @@ Si la lectura del pokemon fue exitosa, se procede a llamar a la función `reallo
 
 En la primer llamada que se realiza a la función `realloc()`, se le pasa un puntero `NULL` y el tamaño en bytes de la estructura `struct pokemon`. Si el puntero es `NULL` y el tamaño solicitado es mayor a cero, `realloc()` se comporta de manera equivalente a `malloc()`.
 
-Una vez terminada la lectura y asignación de memoria para el pokemon leído, si el formato y los datos son correctos, se procede a guardar la estructura `poke` en el vector de pokemones. El primer pokemon se ubicará en la posición [`0`] del vector, el segundo en [`1`] y así sucesivamente hasta [`cantidad-1`]. Luego seguirá iterando hasta leer todos los pokemones, finalmente, una vez que haya llegado el final del archivo, termina el ciclo `while()`, se cierra el archivo con la función `fclose()` y se retorna un puntero con información leída al módulo invocante.
+Una vez terminada la lectura y asignación de memoria para el pokemon leído, si el formato y los datos son correctos, se procede a guardar la estructura `poke` en el vector dinámico de pokemones. El primer pokemon se ubicará en la posición [`0`] del vector, el segundo en [`1`] y así sucesivamente hasta [`cantidad-1`]. Luego seguirá iterando hasta leer todos los pokemones, finalmente, una vez que haya llegado el final del archivo, termina el ciclo `while()`, se cierra el archivo con la función `fclose()` y se retorna un puntero con información leída al módulo invocante.
 
 ### Función pokemon_buscar()
 Para esta función, se recibe como parámetro, un puntero de tipo informacion_pokemon_t*, que contiene la dirección de memoria donde se alojan los datos de los pokemones (en el heap), y también el nombre de un pokemon a buscar (string).
@@ -111,7 +111,7 @@ Habiendo finalizado la escritura del código, se compila con `make pruebas_chanu
 
 #### Explicar cómo se logra que los pokemon queden ordenados alfabéticamente y cuál es el costo computacional de esta operación.
 
-Para ordenar los pokemones se implemento un algoritmo de ordenamiento llamado "Ordenamiento por Burbujeo". En este caso, el algoritmo de ordenamiento de burbuja se utiliza para comparar los nombres de los Pokemones, y ordenarlo alfabéticamente.
+Para ordenar los pokemones se implementó un algoritmo de ordenamiento llamado "Ordenamiento por Burbujeo". En este caso, el algoritmo se utiliza para comparar los nombres de los Pokemones, y ordenarlo alfabéticamente.
 El algoritmo funciona comparando dos nombres contiguos en el vector, es decir, compara el nombre del pokemon que se encuentra en la posición `[0]` con el nombre del pokemon en `[1]`. Si el nombre `[0]` es mayor alfabéticamente que en `[1]`, se procede a realizar el cambio: 
 - Se guarda el pokemon de `[0]` en una variable auxiliar
 - El pokemon que estaba en `[1]` ahora se mueve a `[0]`
